@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fixing Calendar</title>
+<style>
+:root{--ac:168,208,255;--bg:#121316;box-sizing:border-box}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{background:#0e0e10;background:var(--bg);color:#f4f4f2;font-family:"Inter","SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.bg{position:fixed;clip-path:polygon(50% 0,0 100%,100% 100%);background:linear-gradient(160deg,rgba(var(--ac),.1),rgba(var(--ac),.01));pointer-events:none}
+.g1{width:46vmax;height:40vmax;left:-14vmax;top:-10vmax;animation:f1 26s ease-in-out infinite alternate}
+.g2{width:34vmax;height:30vmax;right:-10vmax;bottom:-8vmax;transform:rotate(180deg);animation:f2 32s ease-in-out infinite alternate}
+@keyframes f1{to{transform:translate(6vmax,4vmax) rotate(14deg)}}
+@keyframes f2{from{transform:rotate(180deg)}to{transform:translate(-5vmax,-4vmax) rotate(212deg)}}
+.app{position:relative;height:100%;max-width:480px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:flex-start}
+.mo{font-size:clamp(44px,15vw,64px);font-weight:100;line-height:1;letter-spacing:-.03em;background:linear-gradient(180deg,#fff 40%,rgba(var(--ac),.6));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.yr{font-size:13px;letter-spacing:4px;color:rgba(244,244,242,.45);margin-top:8px}
+.bt{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:150px}
+.ib{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.ib:active{background:rgba(255,255,255,.16)}
+.ib svg{width:19px;height:19px;fill:none;stroke:#f4f4f2;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ib.ac{background:rgba(var(--ac),.2);border-color:rgba(var(--ac),.5)}
+.wd,.gr{display:grid;grid-template-columns:repeat(7,1fr)}
+.wd{margin:16px 0 4px;text-align:center;font-size:11px;letter-spacing:1px;color:rgba(244,244,242,.35)}
+.wd span:nth-child(n+6){color:rgba(var(--ac),.7)}
+.gr.a{animation:sl .45s cubic-bezier(.2,.9,.2,1)}.gr.b{animation:sr .45s cubic-bezier(.2,.9,.2,1)}
+@keyframes sl{from{opacity:0;transform:translateX(24px)}}@keyframes sr{from{opacity:0;transform:translateX(-24px)}}
+.c{height:clamp(40px,7.4vh,52px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:14px;transition:background .2s}
+.c b{font-size:16px;font-weight:300}
+.c.o{opacity:.28}.c.w b{color:rgb(var(--ac))}
+.c.s{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.c.t b{width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:rgb(var(--ac));color:#0e0e10;font-weight:600;box-shadow:0 0 16px rgba(var(--ac),.6)}
+.m{display:flex;gap:3px;height:6px;align-items:center}
+.m i{display:block;width:6px;height:6px}
+.m .r{background:rgb(var(--ac));clip-path:polygon(50% 0,0 100%,100% 100%)}
+.m .d{background:#9ad7ff;transform:rotate(45deg) scale(.75)}
+.m .s{background:#fff;border-radius:50%;opacity:.8}
+.m .u{border-radius:2px}
+.ag{flex:1;overflow:auto;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);-webkit-overflow-scrolling:touch}
+.ev{display:flex;align-items:center;gap:14px;padding:11px 12px;margin-bottom:8px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);text-align:left;width:100%;animation:in .5s cubic-bezier(.2,.9,.2,1) both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+.ev.s{background:rgba(var(--ac),.12);border-color:rgba(var(--ac),.4)}
+.dn{min-width:42px;text-align:center}.dn b{display:block;font-size:22px;font-weight:300;line-height:1}.dn small{font-size:10px;color:rgba(244,244,242,.45);letter-spacing:1px}
+.tx{flex:1;min-width:0}.tx div{font-size:15px}.tx small{font-size:11px;color:rgba(244,244,242,.45)}
+.dot{width:10px;height:9px;flex:none}
+.x{width:30px;height:30px;border-radius:10px;flex:none;background:rgba(255,255,255,.07)}
+.x svg{width:14px;height:14px;stroke:#f4f4f2;fill:none;stroke-width:2;stroke-linecap:round}
+.none{padding:24px;text-align:center;color:rgba(244,244,242,.35);font-size:14px}
+.ov{position:fixed;left:0;top:0;right:0;bottom:0;z-index:9;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+.sheet{max-height:90vh;overflow:auto;width:min(100%,480px);padding:22px 22px calc(26px + env(safe-area-inset-bottom,0px));border-radius:30px 30px 0 0;background:rgba(28,28,31,.95);border:1px solid rgba(255,255,255,.12);animation:up .4s cubic-bezier(.2,.9,.2,1)}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sh{display:flex;justify-content:space-between;align-items:center;font-size:19px}
+.sl{font-size:12px;color:rgba(244,244,242,.45);margin:16px 0 10px}
+.in{width:100%;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);cursor:text;font-size:16px;color-scheme:dark}
+.sw{display:flex;gap:12px;flex-wrap:wrap}
+.sw button{width:40px;height:40px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+.sw button.sel{border-color:#fff}
+#sb button{width:54px;border-radius:14px;border:2px solid rgba(255,255,255,.15)}#sb button.sel{border-color:#fff}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{padding:13px 8px;border-radius:16px;font-size:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);opacity:.55}
+.opt.sel{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.45);opacity:1}
+.save{width:100%;margin-top:20px;padding:15px;border-radius:18px;background:rgb(var(--ac));color:#0e0e10;font-weight:600;font-size:16px}
+.rp{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:15px}
+/* normal tam sayfa */
+.bg{display:none}
+.ib,.sheet,.in{-webkit-backdrop-filter:none;backdrop-filter:none}
+.ib{background:#1d1d20;border-color:#2c2c30}
+.sheet{background:#1a1a1d}
+.app{max-width:none;padding-left:16px;padding-right:16px}
+.mo{background:none;-webkit-text-fill-color:#f4f4f2;color:#f4f4f2;font-weight:200}
+.gr{border-top:1px solid #2a2a2e;border-left:1px solid #2a2a2e}
+.c{border-radius:0;border-right:1px solid #2a2a2e;border-bottom:1px solid #2a2a2e;height:clamp(44px,8vh,60px)}
+.c.s{background:#1f1f24;box-shadow:inset 0 0 0 1px rgb(var(--ac))}
+.ev{background:#1a1a1d;border-color:#2a2a2e}
+.ev.s{background:#201d2b}
+.ch{display:none}
+@media(min-width:700px){
+ .app{padding-left:28px;padding-right:28px}
+ .gr{flex:1;grid-template-rows:repeat(6,1fr);min-height:0}
+ .c{height:auto;align-items:stretch;justify-content:flex-start;padding:6px 8px;overflow:hidden;gap:4px}
+ .c b{font-size:15px;align-self:flex-start}
+ .c .m{display:none}
+ .ch{display:block;font-size:12px;padding:2px 6px;border-radius:4px;background:#232327;border-left:3px solid;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+ .ag{display:none}
+}
+/* soft modern */
+body{background:var(--bg)}
+.mo{font-size:clamp(34px,9vw,48px);font-weight:300;letter-spacing:-.02em;color:#f2f3f5;-webkit-text-fill-color:#f2f3f5}
+.yr{letter-spacing:2px;color:rgba(var(--ac),.8);margin-top:6px}
+.ib{width:42px;height:42px;border-radius:50%;background:#1b1c20;border:0}
+.ib.ac{background:rgb(var(--ac))}.ib.ac svg{stroke:#101114}
+.wd{color:rgba(242,243,245,.38)}.wd span:nth-child(n+6){color:rgba(var(--ac),.75)}
+.gr{border:0;gap:4px}
+.c{border:0;border-radius:18px;height:clamp(44px,8vh,58px)}
+.c.s{background:rgba(var(--ac),.14);box-shadow:none}
+.c.t b{background:rgb(var(--ac));color:#101114;box-shadow:none}
+.m .r{border-radius:50%;clip-path:none;background:rgb(var(--ac))}
+.m .d{border-radius:50%;transform:none;background:transparent;border:1.5px solid rgb(var(--ac))}
+.m .s{background:rgba(255,255,255,.55);opacity:1}
+.dot{width:10px;height:10px;border-radius:50%}
+.ag{border-top:0}
+.ev{border:0;border-radius:20px;background:#1a1b1f}
+.ev.s{background:rgba(var(--ac),.14)}
+.sheet{border:0;border-radius:28px 28px 0 0;background:#1a1b1f}
+.in{border:0;border-radius:16px;background:#24252a}
+.opt{border:0;border-radius:16px;background:#24252a}.opt.sel{background:rgba(var(--ac),.22)}
+.save{background:rgb(var(--ac));color:#101114;border-radius:20px}
+.sw button.sel{border-color:#f2f3f5}
+@media(min-width:700px){
+ .c{border-radius:20px}
+ .ch{border:0;border-radius:8px;color:#f2f3f5;background:#24252a;background:color-mix(in srgb,var(--cc) 22%,transparent);padding:3px 8px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top"><div><div class="mo" id="mo"></div><div class="yr" id="yr"></div></div>
+  <div class="bt">
+   <button class="ib" id="pv" aria-label="Önceki ay"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+   <button class="ib" id="nx" aria-label="Sonraki ay"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+   <button class="ib ac" id="ad" aria-label="Gün ekle"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+   <button class="ib" id="st" aria-label="Ayarlar"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+  </div></div>
+ <div class="wd"><span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span></div>
+ <div class="gr" id="gr"></div>
+ <div class="ag" id="ag"></div>
+</div>
+<div class="ov" id="ov"><div class="sheet" id="sh"></div></div>
+<script>
+var GN=["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],GS=["PAZ","PZT","SAL","ÇAR","PER","CUM","CMT"],
+A=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+function $(i){return document.getElementById(i)}
+var R=[[1,1,"Yılbaşı"],[4,23,"Ulusal Egemenlik ve Çocuk Bayramı"],[5,1,"Emek ve Dayanışma Günü"],[5,19,"Atatürk'ü Anma, Gençlik ve Spor Bayramı"],[7,15,"Demokrasi ve Milli Birlik Günü"],[8,30,"Zafer Bayramı"],[10,28,"Cumhuriyet Bayramı Arefesi (yarım gün)"],[10,29,"Cumhuriyet Bayramı"]];
+var S=[[1,24,"Uluslararası Eğitim Günü"],[2,14,"Sevgililer Günü"],[3,8,"Dünya Kadınlar Günü"],[3,12,"İstiklal Marşı'nın Kabulü"],[3,14,"Tıp Bayramı"],[3,18,"Çanakkale Zaferi ve Şehitleri Anma Günü"],[3,21,"Nevruz"],[3,22,"Dünya Su Günü"],[3,27,"Dünya Tiyatrolar Günü"],[4,1,"Şaka Günü"],[4,7,"Dünya Sağlık Günü"],[4,22,"Dünya Günü"],[5,3,"Dünya Basın Özgürlüğü Günü"],[5,8,"Dünya Kızılay Günü"],[5,12,"Hemşireler Günü"],[5,15,"Dünya Aile Günü"],[5,31,"Dünya Tütünsüz Günü"],[6,5,"Dünya Çevre Günü"],[6,20,"Dünya Mülteciler Günü"],[8,26,"Malazgirt Zaferi"],[9,1,"Dünya Barış Günü"],[9,9,"İzmir'in Kurtuluşu"],[9,21,"Uluslararası Barış Günü"],[10,1,"Dünya Yaşlılar Günü"],[10,4,"Dünya Hayvanları Koruma Günü"],[10,10,"Dünya Ruh Sağlığı Günü"],[10,24,"Birleşmiş Milletler Günü"],[10,31,"Cadılar Bayramı"],[11,10,"Atatürk'ü Anma Günü"],[11,14,"Dünya Diyabet Günü"],[11,20,"Dünya Çocuk Hakları Günü"],[11,24,"Öğretmenler Günü"],[11,25,"Kadına Şiddete Karşı Mücadele Günü"],[12,1,"Dünya AIDS Günü"],[12,3,"Dünya Engelliler Günü"],[12,5,"Kadın Hakları Günü"],[12,10,"İnsan Hakları Günü"],[12,24,"Noel Arifesi"],[12,25,"Noel"],[12,31,"Yılbaşı Gecesi"]];
+var D={2026:[[1,15,"Miraç Kandili"],[2,2,"Berat Kandili"],[2,19,"Ramazan Başlangıcı"],[3,16,"Kadir Gecesi"],[3,19,"Ramazan Bayramı Arefesi"],[3,20,"Ramazan Bayramı 1. gün"],[3,21,"Ramazan Bayramı 2. gün"],[3,22,"Ramazan Bayramı 3. gün"],[5,26,"Kurban Bayramı Arefesi"],[5,27,"Kurban Bayramı 1. gün"],[5,28,"Kurban Bayramı 2. gün"],[5,29,"Kurban Bayramı 3. gün"],[5,30,"Kurban Bayramı 4. gün"],[6,16,"Hicri Yılbaşı"],[6,25,"Aşure Günü"],[8,24,"Mevlid Kandili"],[12,10,"Üç Aylar Başlangıcı ve Regaib Kandili"]],
+2027:[[1,4,"Miraç Kandili"],[1,22,"Berat Kandili"],[2,8,"Ramazan Başlangıcı"],[3,5,"Kadir Gecesi"],[3,8,"Ramazan Bayramı Arefesi"],[3,9,"Ramazan Bayramı 1. gün"],[3,10,"Ramazan Bayramı 2. gün"],[3,11,"Ramazan Bayramı 3. gün"],[5,15,"Kurban Bayramı Arefesi"],[5,16,"Kurban Bayramı 1. gün"],[5,17,"Kurban Bayramı 2. gün"],[5,18,"Kurban Bayramı 3. gün"],[5,19,"Kurban Bayramı 4. gün"],[6,6,"Hicri Yılbaşı"],[6,15,"Aşure Günü"]],
+2028:[[1,28,"Ramazan Başlangıcı"],[2,22,"Kadir Gecesi"],[2,25,"Ramazan Bayramı Arefesi"],[2,26,"Ramazan Bayramı 1. gün"],[2,27,"Ramazan Bayramı 2. gün"],[2,28,"Ramazan Bayramı 3. gün"],[5,4,"Kurban Bayramı Arefesi"],[5,5,"Kurban Bayramı 1. gün"],[5,6,"Kurban Bayramı 2. gün"],[5,7,"Kurban Bayramı 3. gün"],[5,8,"Kurban Bayramı 4. gün"]]};
+var HOL={"Ramazan Bayramı":1,"Kurban Bayramı":1};
+var TL={r:"Resmi tatil",d:"Dini gün",s:"Özel gün",u:"Benim günüm"},UC=["#ffaa64","#ff82b4","#78e6aa","#78aaff","#c4aaff"];
+var COL=[["168,208,255","#a8d0ff"],["196,170,255","#c4aaff"],["150,110,255","#966eff"],["220,140,255","#dc8cff"],["110,120,255","#6e78ff"],["190,90,255","#be5aff"],["255,255,255","#ffffff"],["255,130,180","#ff82b4"],["120,170,255","#78aaff"],["120,230,170","#78e6aa"],["255,170,100","#ffaa64"]];
+var BG=[["Soft siyah","#121316"],["Saf siyah","#000"],["Grafit","linear-gradient(160deg,#2c2d32,#141518)"],["Gece mavisi","radial-gradient(ellipse at 50% 25%,#1c2640 0%,#0e1424 60%,#080b14 100%)"],["Derin mor","radial-gradient(ellipse at 50% 25%,#2e1f52 0%,#170f2b 60%,#0b0716 100%)"],["Orkide gece","linear-gradient(160deg,#3b1e50,#14101f 70%)"],["Aurora","radial-gradient(circle at 20% 15%,rgba(140,90,255,.38),transparent 45%),radial-gradient(circle at 85% 85%,rgba(80,200,200,.25),transparent 45%),#0d0d12"]];
+var cfg={ci:0,bi:0,f:{r:1,d:1,s:1,u:1}},U=[];
+try{var sv=JSON.parse(localStorage.getItem("fixcal2"));if(sv)cfg=sv;var su=JSON.parse(localStorage.getItem("fixcalU"));if(su)U=su}catch(e){}
+if(!COL[cfg.ci])cfg.ci=0;if(!BG[cfg.bi])cfg.bi=0;if(!cfg.f)cfg.f={r:1,d:1,s:1,u:1};
+function save(){try{localStorage.setItem("fixcal2",JSON.stringify(cfg));localStorage.setItem("fixcalU",JSON.stringify(U))}catch(e){}}
+function nthSun(y,m,n){var f=new Date(y,m-1,1).getDay();return 1+(7-f)%7+(n-1)*7}
+function evs(y,m,d){ /* m: 1-12 */
+ var o=[],i;
+ for(i=0;i<R.length;i++)if(R[i][0]===m&&R[i][1]===d)o.push({n:R[i][2],t:"r"});
+ var dl=D[y]||[];for(i=0;i<dl.length;i++)if(dl[i][0]===m&&dl[i][1]===d){var nm=dl[i][2],hl=/Bayram/.test(nm)&&!/Arefe/.test(nm);o.push({n:nm,t:hl?"r":"d"})}
+ for(i=0;i<S.length;i++)if(S[i][0]===m&&S[i][1]===d)o.push({n:S[i][2],t:"s"});
+ if(m===5&&d===nthSun(y,5,2))o.push({n:"Anneler Günü",t:"s"});
+ if(m===6&&d===nthSun(y,6,3))o.push({n:"Babalar Günü",t:"s"});
+ for(i=0;i<U.length;i++){var u=U[i];if(u.m===m&&u.d===d&&(u.rep||u.y===y))o.push({n:u.n,t:"u",c:u.c,id:u.id,rep:u.rep})}
+ return o.filter(function(e){return cfg.f[e.t]!==0});
+}
+var now=new Date(),V={y:now.getFullYear(),m:now.getMonth()},Sel={y:V.y,m:V.m,d:now.getDate()},gr=$("gr"),ag=$("ag");
+function same(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+function col(e){return e.t==="u"?e.c:(e.t==="s"?"rgba(255,255,255,.55)":"rgb(var(--ac))")}
+function render(dir){
+ var today=new Date(),first=(new Date(V.y,V.m,1).getDay()+6)%7,h="",sd=new Date(Sel.y,Sel.m,Sel.d);
+ for(var i=0;i<42;i++){
+  var d=new Date(V.y,V.m,1-first+i),cl="c",E=evs(d.getFullYear(),d.getMonth()+1,d.getDate()),mk="",ch="",seen={};
+  if(d.getMonth()!==V.m)cl+=" o";if(i%7>4)cl+=" w";if(same(d,sd))cl+=" s";if(same(d,today))cl+=" t";
+  for(var j=0;j<E.length&&j<3;j++)ch+='<span class="ch" style="--cc:'+col(E[j])+'">'+E[j].n+"</span>";
+  for(var k=0;k<E.length&&mk.split("<i").length<4;k++){var e=E[k],key=e.t+(e.c||"");if(seen[key])continue;seen[key]=1;mk+='<i class="'+e.t+'"'+(e.t==="u"?' style="background:'+e.c+'"':"")+"></i>"}
+  h+='<button class="'+cl+'" data-k="'+d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()+'"><b>'+d.getDate()+'</b><span class="m">'+mk+"</span>"+ch+"</button>";
+ }
+ gr.innerHTML=h;gr.className="gr"+(dir>0?" a":(dir<0?" b":""));
+ $("mo").innerHTML=A[V.m];$("yr").innerHTML=V.y;
+ var n=new Date(V.y,V.m+1,0).getDate(),L="";
+ for(var day=1;day<=n;day++){var ee=evs(V.y,V.m+1,day),wd=new Date(V.y,V.m,day).getDay(),isS=(Sel.y===V.y&&Sel.m===V.m&&Sel.d===day);
+  for(var q=0;q<ee.length;q++){var x=ee[q];
+   L+='<div class="ev'+(isS?" s":"")+'" data-k="'+V.y+"-"+V.m+"-"+day+'" style="animation-delay:'+Math.min(L.length/400,.5)+'s"><div class="dn"><b>'+day+"</b><small>"+GS[wd]+'</small></div><div class="tx"><div>'+x.n+"</div><small>"+TL[x.t]+(x.rep?" · her yıl":"")+'</small></div><i class="dot" style="background:'+col(x)+(x.t==="d"?";background:transparent;border:2px solid rgb(var(--ac))":"")+";border-radius:50%"+'"></i>'+(x.id?'<button class="x" data-x="'+x.id+'" aria-label="Sil"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>':"")+"</div>"}}
+ ag.innerHTML=L||'<div class="none">Bu ay görünen özel gün yok</div>';
+ var se=ag.querySelector(".ev.s");if(se)ag.scrollTop=se.offsetTop-ag.offsetTop-6;
+}
+function go(n){V.m+=n;if(V.m<0){V.m=11;V.y--}if(V.m>11){V.m=0;V.y++}render(n)}
+function sheet(h){$("sh").innerHTML=h;$("ov").className="ov show"}
+function pad(n){return n<10?"0"+n:n}
+var newC=0;
+function addSheet(){
+ var ds=Sel.y+"-"+pad(Sel.m+1)+"-"+pad(Sel.d);
+ sheet('<div class="sh"><span>Yeni özel gün</span><button class="ib" data-cl="1"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sl">Ad</div><input class="in" id="fn" placeholder="Doğum günü, yıl dönümü, randevu…" maxlength="60"><div class="sl">Tarih</div><input class="in" type="date" id="fd" value="'+ds+'"><div class="rp"><span>Her yıl tekrarla</span><button class="opt sel" id="fr" style="padding:8px 18px">Evet</button></div><div class="sl">Renk</div><div class="sw" id="uc"></div><button class="save" id="sv">Kaydet</button>');
+ var u=$("uc");for(var i=0;i<UC.length;i++){var b=document.createElement("button");b.style.background=UC[i];b.setAttribute("data-uc",i);b.className=i===newC?"sel":"";u.appendChild(b)}
+}
+function setSheet(){
+ var h='<div class="sh"><span>Ayarlar</span><button class="ib" data-cl="1"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sl">Gösterilecek günler</div><div class="opts">';
+ for(var k in TL)h+='<button class="opt'+(cfg.f[k]!==0?" sel":"")+'" data-f="'+k+'">'+TL[k]+"</button>";
+ h+='</div><div class="sl">Renk</div><div class="sw">';
+ for(var c=0;c<COL.length;c++)h+='<button data-c="'+c+'" class="'+(c===cfg.ci?"sel":"")+'" style="background:'+COL[c][1]+'"></button>';
+ h+='</div><div class="sl">Arka plan</div><div class="sw" id="sb">';
+ for(var m=0;m<BG.length;m++)h+='<button data-b="'+m+'" title="'+BG[m][0]+'" class="'+(m===cfg.bi?"sel":"")+'" style="background:'+BG[m][1]+'"></button>';
+ h+='</div><div class="sl">Tam ekran</div><button class="opt sel" id="fs" style="width:100%">Tam ekran aç / kapat</button>';
+ sheet(h);
+}
+function apply(){var rs=document.documentElement.style;rs.setProperty("--ac",COL[cfg.ci][0]);rs.setProperty("--bg",BG[cfg.bi][1])}
+var rep=true;
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("button,.ev");if(e.target.id==="ov"){$("ov").className="ov";return}
+ if(!t)return;var id=t.id;
+ if(id==="pv")go(-1);else if(id==="nx")go(1);
+ else if(id==="ad"){rep=true;addSheet()}else if(id==="st")setSheet();
+ else if(t.hasAttribute("data-cl"))$("ov").className="ov";
+ else if(id==="fs"){var d=document,el=d.documentElement;try{if(d.fullscreenElement||d.webkitFullscreenElement)(d.exitFullscreen||d.webkitExitFullscreen).call(d);else(el.requestFullscreen||el.webkitRequestFullscreen).call(el)}catch(x){}}
+ else if(id==="fr"){rep=!rep;t.innerHTML=rep?"Evet":"Hayır";t.className="opt"+(rep?" sel":"")}
+ else if(t.hasAttribute("data-uc")){newC=+t.getAttribute("data-uc");var s=$("uc").children;for(var i=0;i<s.length;i++)s[i].className=i===newC?"sel":""}
+ else if(id==="sv"){var nm=$("fn").value.replace(/[<>&"]/g,"").trim(),dv=$("fd").value;if(!nm||!dv){$("fn").style.borderColor="#ff82b4";return}
+  var p=dv.split("-");U.push({id:"u"+Date.now(),n:nm,y:+p[0],m:+p[1],d:+p[2],rep:rep,c:UC[newC]});save();Sel={y:+p[0],m:+p[1]-1,d:+p[2]};V={y:Sel.y,m:Sel.m};$("ov").className="ov";render(0)}
+ else if(t.hasAttribute("data-x")){var xi=t.getAttribute("data-x");U=U.filter(function(u){return u.id!==xi});save();render(0)}
+ else if(t.hasAttribute("data-f")){var k=t.getAttribute("data-f");cfg.f[k]=cfg.f[k]===0?1:0;save();setSheet();render(0)}
+ else if(t.hasAttribute("data-c")){cfg.ci=+t.getAttribute("data-c");save();apply();setSheet()}
+ else if(t.hasAttribute("data-b")){cfg.bi=+t.getAttribute("data-b");save();apply();setSheet()}
+ else if(t.hasAttribute("data-k")){var p2=t.getAttribute("data-k").split("-"),dr=(+p2[0]*12+ +p2[1])-(V.y*12+V.m);Sel={y:+p2[0],m:+p2[1],d:+p2[2]};V={y:Sel.y,m:Sel.m};render(dr)}
+});
+$("mo").addEventListener("click",function(){var n=new Date();Sel={y:n.getFullYear(),m:n.getMonth(),d:n.getDate()};var dr=(Sel.y*12+Sel.m)-(V.y*12+V.m);V={y:Sel.y,m:Sel.m};render(dr>0?1:(dr<0?-1:0))});
+var ld=now.getDate();setInterval(function(){var n=new Date();if(n.getDate()!==ld){ld=n.getDate();render(0)}},30000);
+apply();render(0);
+</script>
+</body>
+</html>
